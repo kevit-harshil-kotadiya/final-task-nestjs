@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put } from '@nestjs/common';
+import {Body, Controller, Get, HttpStatus, Post, Put, Res} from '@nestjs/common';
 import { AdministrationLoginDto } from './dtos/administration-login.dto';
 import { AdministrationService } from './administration.service';
 import { AdministrationDto } from './dtos/administration.dto';
@@ -9,7 +9,16 @@ export class AdministrationController {
   constructor(private adminService: AdministrationService) {}
 
   @Post('/login')
-  async login(@Body() body: AdministrationLoginDto) {}
+  async login(@Body() body: AdministrationLoginDto,@Res() res) {
+    try {
+      const { administratorId, password } = body;
+      const loginResponse = await this.adminService.login(administratorId, password);
+      return res.status(HttpStatus.OK).send(loginResponse);
+    } catch (error) {
+      return res.status(HttpStatus.UNAUTHORIZED).send(error.message);
+    }
+  }
+
 
   @Post('/add-admin')
   async addAdmin(@Body() body: AdministrationDto) {
