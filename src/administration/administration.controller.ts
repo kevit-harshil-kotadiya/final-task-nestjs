@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Put } from '@nestjs/common';
 import { AdministrationLoginDto } from './dtos/administration-login.dto';
 import { AdministrationService } from './administration.service';
 import { AdministrationDto } from './dtos/administration.dto';
+import { StudentDto } from '../student/dtos/student.dto';
 
 @Controller('administration')
 export class AdministrationController {
@@ -16,7 +17,9 @@ export class AdministrationController {
   }
 
   @Post('/student')
-  addStudent(): void {}
+  async addStudent(@Body() body: StudentDto) {
+    return await this.adminService.addStudent(body);
+  }
 
   @Post('/add-staff')
   async addStaff(@Body() body: AdministrationDto) {
