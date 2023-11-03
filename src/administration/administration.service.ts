@@ -4,12 +4,14 @@ import { Model } from 'mongoose';
 import { AdministrationDto } from './dtos/administration.dto';
 import { StudentDto } from '../student/dtos/student.dto';
 import { JwtService } from '@nestjs/jwt';
+import * as process from 'process';
 
 @Injectable()
 export class AdministrationService {
   constructor(
     @InjectModel('Administration') private readonly Administration: Model<any>,
     @InjectModel('Student') private readonly Student: Model<any>,
+    @InjectModel('Department') private readonly Department: Model<any>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -49,15 +51,20 @@ export class AdministrationService {
   }
 
   async login(administratorId: string, password: string) {
-    const administrator:any = await this.Administration.findOne({administratorId});
-    if(administrator){
+    const administrator: any = await this.Administration.findOne({
+      administratorId,
+    });
+    if (administrator) {
       const match = password === administrator.password;
 
-      if (match){
-        const token = this.jwtService.sign({
-          _id: administrator._id.toString(),
-          administratorId: administrator.administratorId,
-        });
+      if (match) {
+        const token = this.jwtService.sign(
+          {
+            _id: administrator._id.toString(),
+            administratorId: administrator.administratorId,
+          },
+          { secret: process.env.KEY },
+        );
 
         administrator.tokens.push({ token });
         await administrator.save();
@@ -69,5 +76,4 @@ export class AdministrationService {
     }
     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
   }
-
 }
