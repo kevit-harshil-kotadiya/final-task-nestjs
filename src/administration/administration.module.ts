@@ -12,7 +12,7 @@ import { departmentSchema } from '../department/department.model';
     MongooseModule.forFeature([
       { name: 'Administration', schema: administrationSchema },
       { name: 'Student', schema: studentSchema },
-      { name: 'Department', schema: departmentSchema },
+      { name: 'Batch', schema: departmentSchema },
     ]),
     JwtModule.register({
       secret: 'yourSecretKey', // Replace with your actual secret key

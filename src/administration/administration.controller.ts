@@ -89,19 +89,26 @@ export class AdministrationController {
 
   @Get('/absent-students')
   @UseGuards(StaffAuthorizationGuard)
-  absentStudents() {
-
+  absentStudents(@Body() body) {
+    const {date} = body;
+    if(!date)return 'Please enter a date'
+    return this.adminService.absentStudents(date);
   }
 
   @Get('/less-attendance')
   @UseGuards(StaffAuthorizationGuard)
-  lessAttendance() {
-
+  lessAttendance(@Body() body) {
+    const sem = parseInt(body.sem);
+    if(!sem)return 'Please enter a sem';
+    return this.adminService.lessAttendance(sem);
   }
 
   @Get('/departments')
   @UseGuards(AdminAuthorizationGuard)
-  departments() {}
+  departments(@Body() body) {
+    const {year} = body;
+    return this.adminService.getDepartments(year);
+  }
 
   @Put('/departments')
   @UseGuards(AdminAuthorizationGuard)
