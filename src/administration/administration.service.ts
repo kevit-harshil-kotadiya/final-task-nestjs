@@ -1,9 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { AdministrationDto } from './dtos/administration.dto';
-import { StudentDto } from '../student/dtos/student.dto';
-import { JwtService } from '@nestjs/jwt';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
+import {AdministrationDto} from './dtos/administration.dto';
+import {StudentDto} from '../student/dtos/student.dto';
+import {JwtService} from '@nestjs/jwt';
 import * as process from 'process';
 
 @Injectable()
@@ -76,4 +76,50 @@ export class AdministrationService {
     }
     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
   }
+
+  async logout(administratorId: string, token: string) {
+    try {
+      const user: any = await this.Administration.findOne({ administratorId });
+      if (!user) {
+        return null;
+      }
+
+      user.tokens = user.tokens.filter((t) => t.token !== token);
+      await user.save();
+
+      return user;
+    } catch (e) {
+      // Log or handle the error accordingly
+      return null;
+    }
+  }
+
+  async getStudentData(){
+    return this.Student.aggregate([
+      {
+        $group: {
+          _id: {year: "$batch", department: "$department"},
+          totalStudents: {$sum: 1},
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.year",
+          totalStudents: {$sum: "$totalStudents"},
+          branches: {
+            $push: {k: "$_id.department", v: "$totalStudents"},
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          year: "$_id",
+          totalStudents: 1,
+          branches: {$arrayToObject: "$branches"},
+        },
+      },
+    ]);
+  }
+
 }

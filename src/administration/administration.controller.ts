@@ -2,15 +2,24 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   HttpStatus,
   Post,
   Put,
+  Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { AdministrationLoginDto } from './dtos/administration-login.dto';
 import { AdministrationService } from './administration.service';
 import { AdministrationDto } from './dtos/administration.dto';
 import { StudentDto } from '../student/dtos/student.dto';
+import {
+  AdminAuthorizationGuard,
+  StaffAuthorizationGuard,
+} from './guards/admin.guard';
+import { throttle } from 'rxjs';
+import {Aggregate} from "mongoose";
 
 @Controller('administration')
 export class AdministrationController {
@@ -31,38 +40,74 @@ export class AdministrationController {
   }
 
   @Post('/add-admin')
+  @UseGuards(AdminAuthorizationGuard)
   async addAdmin(@Body() body: AdministrationDto) {
     return await this.adminService.createAdmin(body);
   }
 
   @Post('/student')
+  @UseGuards(StaffAuthorizationGuard)
   async addStudent(@Body() body: StudentDto) {
     return await this.adminService.addStudent(body);
   }
 
   @Post('/add-staff')
+  @UseGuards(AdminAuthorizationGuard)
   async addStaff(@Body() body: AdministrationDto) {
     return await this.adminService.addStaff(body);
   }
 
   @Post('/logout')
-  logout() {}
+  async logout(@Req() req, @Res() res) {
+    try {
+      const administrator = req.user;
+      const administratorId = administrator.administratorId;
+      const token = req.headers.authorization.replace('Bearer ', '');
+
+      const user = await this.adminService.logout(administratorId, token);
+
+      if (user) {
+        res.send('logout successful');
+      } else {
+        res.status(404).send('User not found');
+      }
+    } catch (e) {
+      return res.status(500).send('Server error');
+    }
+  }
 
   @Get('/list-students')
-  listStudents() {}
+  @UseGuards(StaffAuthorizationGuard)
+  async listStudents(){
+    const studentData: any = await this.adminService.getStudentData();
+
+    if (!studentData || studentData.length === 0) {
+      throw new HttpException('No Data Found!!', HttpStatus.NO_CONTENT);
+    }
+    return studentData;
+  }
 
   @Get('/absent-students')
-  absentStudents() {}
+  @UseGuards(StaffAuthorizationGuard)
+  absentStudents() {
+
+  }
 
   @Get('/less-attendance')
-  lessAttendance() {}
+  @UseGuards(StaffAuthorizationGuard)
+  lessAttendance() {
+
+  }
 
   @Get('/departments')
+  @UseGuards(AdminAuthorizationGuard)
   departments() {}
 
   @Put('/departments')
+  @UseGuards(AdminAuthorizationGuard)
   addDepartmentData() {}
 
   @Put('/student')
+  @UseGuards(StaffAuthorizationGuard)
   updateStudent() {}
 }

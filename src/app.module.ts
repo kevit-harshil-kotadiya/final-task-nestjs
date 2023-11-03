@@ -13,10 +13,10 @@ import { DepartmentModule } from './department/department.module';
 import * as dotenv from 'dotenv';
 import { AuthenticationMiddleware } from './middleware/authentication.middleware';
 import * as process from 'process';
-import {administrationSchema} from "./administration/administration.model";
-import {studentSchema} from "./student/student.model";
-import {departmentSchema} from "./department/department.model";
-import {JwtModule} from "@nestjs/jwt";
+import { administrationSchema } from './administration/administration.model';
+import { studentSchema } from './student/student.model';
+import { departmentSchema } from './department/department.model';
+import { JwtModule } from '@nestjs/jwt';
 
 dotenv.config();
 
@@ -36,7 +36,7 @@ dotenv.config();
       signOptions: {
         expiresIn: '24h', // Set expiration time for the token as needed
       },
-    })
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

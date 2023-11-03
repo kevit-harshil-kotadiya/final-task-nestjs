@@ -20,40 +20,39 @@ export class AuthenticationMiddleware implements NestMiddleware {
       console.log('************************************');
       console.log('inside Middleware');
 
-      const token = req.headers.authorization?.replace('Bearer ','');
+      const token = req.headers.authorization?.replace('Bearer ', '');
 
-      if(!token){
-          throw new UnauthorizedException('Please login')
+      if (!token) {
+        throw new UnauthorizedException('Please login');
       }
 
-      const decoded = this.jwtService.verify(token,{secret:process.env.KEY});
+      const decoded = this.jwtService.verify(token, {
+        secret: process.env.KEY,
+      });
 
       const student = await this.Student.findOne({
-          _id:decoded._id,
-          'tokens.token':token
-      })
-        // console.log(student);
+        _id: decoded._id,
+        'tokens.token': token,
+      });
+      // console.log(student);
 
       const administrator = await this.Administration.findOne({
-          _id:decoded._id,
-          'tokens.token':token
-      })
-        // console.log(administrator);
-      if(!student && !administrator){
-          throw new UnauthorizedException('Please login');
+        _id: decoded._id,
+        'tokens.token': token,
+      });
+      // console.log(administrator);
+      if (!student && !administrator) {
+        throw new UnauthorizedException('Please login');
       }
 
-      if (student){
-          req.headers['token']=token;
-          req['user']=student;
-      }
-
-      else if(administrator){
-          req.headers['token']=token;
-          req['user'] = administrator;
+      if (student) {
+        req.headers['token'] = token;
+        req['user'] = student;
+      } else if (administrator) {
+        req.headers['token'] = token;
+        req['user'] = administrator;
       }
       next();
-
     } catch (e) {
       throw new UnauthorizedException('Please Authentication');
     }
