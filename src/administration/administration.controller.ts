@@ -19,7 +19,8 @@ import {
   StaffAuthorizationGuard,
 } from './guards/admin.guard';
 import { throttle } from 'rxjs';
-import {Aggregate} from "mongoose";
+import { Aggregate } from 'mongoose';
+import { DepartmentDto } from '../department/dtos/departmentData.dto';
 
 @Controller('administration')
 export class AdministrationController {
@@ -78,7 +79,7 @@ export class AdministrationController {
 
   @Get('/list-students')
   @UseGuards(StaffAuthorizationGuard)
-  async listStudents(){
+  async listStudents() {
     const studentData: any = await this.adminService.getStudentData();
 
     if (!studentData || studentData.length === 0) {
@@ -90,8 +91,8 @@ export class AdministrationController {
   @Get('/absent-students')
   @UseGuards(StaffAuthorizationGuard)
   absentStudents(@Body() body) {
-    const {date} = body;
-    if(!date)return 'Please enter a date'
+    const { date } = body;
+    if (!date) return 'Please enter a date';
     return this.adminService.absentStudents(date);
   }
 
@@ -99,22 +100,27 @@ export class AdministrationController {
   @UseGuards(StaffAuthorizationGuard)
   lessAttendance(@Body() body) {
     const sem = parseInt(body.sem);
-    if(!sem)return 'Please enter a sem';
+    if (!sem) return 'Please enter a sem';
     return this.adminService.lessAttendance(sem);
   }
 
   @Get('/departments')
   @UseGuards(AdminAuthorizationGuard)
   departments(@Body() body) {
-    const {year} = body;
+    const { year } = body;
     return this.adminService.getDepartments(year);
   }
 
   @Put('/departments')
   @UseGuards(AdminAuthorizationGuard)
-  addDepartmentData() {}
+  async addDepartmentData(@Body() body: DepartmentDto) {
+    const { year, ...dataToAdd } = body;
+    return await this.adminService.addDepartmentData(year, dataToAdd);
+  }
 
   @Put('/student')
   @UseGuards(StaffAuthorizationGuard)
-  updateStudent() {}
+  async updateStudent(@Body() body) {
+    return await this.adminService.updateStudent(body);
+  }
 }

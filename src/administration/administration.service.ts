@@ -1,9 +1,15 @@
-import {HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
-import {InjectModel} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
-import {AdministrationDto} from './dtos/administration.dto';
-import {StudentDto} from '../student/dtos/student.dto';
-import {JwtService} from '@nestjs/jwt';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { AdministrationDto } from './dtos/administration.dto';
+import { StudentDto } from '../student/dtos/student.dto';
+import { JwtService } from '@nestjs/jwt';
 import * as process from 'process';
 
 @Injectable()
@@ -29,8 +35,6 @@ export class AdministrationService {
 
     return attendance.toFixed(2);
   }
-
-
 
   async createAdmin(Admin: AdministrationDto) {
     if (await this.Administration.findOne({ profile: 'admin' })) {
@@ -111,29 +115,29 @@ export class AdministrationService {
     }
   }
 
-  async getStudentData(){
+  async getStudentData() {
     return this.Student.aggregate([
       {
         $group: {
-          _id: {year: "$batch", department: "$department"},
-          totalStudents: {$sum: 1},
+          _id: { year: '$batch', department: '$department' },
+          totalStudents: { $sum: 1 },
         },
       },
       {
         $group: {
-          _id: "$_id.year",
-          totalStudents: {$sum: "$totalStudents"},
+          _id: '$_id.year',
+          totalStudents: { $sum: '$totalStudents' },
           branches: {
-            $push: {k: "$_id.department", v: "$totalStudents"},
+            $push: { k: '$_id.department', v: '$totalStudents' },
           },
         },
       },
       {
         $project: {
           _id: 0,
-          year: "$_id",
+          year: '$_id',
           totalStudents: 1,
-          branches: {$arrayToObject: "$branches"},
+          branches: { $arrayToObject: '$branches' },
         },
       },
     ]);
@@ -143,7 +147,7 @@ export class AdministrationService {
     const data = [];
 
     if (new Date(date) > new Date()) {
-      return "No Data Found!";
+      return 'No Data Found!';
     }
 
     const students = await this.Student.find({});
@@ -159,7 +163,7 @@ export class AdministrationService {
     }
 
     if (data.length === 0) {
-      return "No Student Absent";
+      return 'No Student Absent';
     }
 
     return data;
@@ -186,12 +190,12 @@ export class AdministrationService {
 
       if (student.currentSem > sem) {
         const foundSemAttendence = student.semAttendance.find(
-            (item) => item.sem === sem,
+          (item) => item.sem === sem,
         );
 
         if (
-            foundSemAttendence !== undefined &&
-            parseInt(foundSemAttendence.attendance) < 75
+          foundSemAttendence !== undefined &&
+          parseInt(foundSemAttendence.attendance) < 75
         ) {
           const studentWithLessAttedance = {
             name: student.name,
@@ -203,56 +207,56 @@ export class AdministrationService {
         }
       }
     }
-    if (data.length===0){
-      return 'No Data Found!'
+    if (data.length === 0) {
+      return 'No Data Found!';
     }
     return data;
   }
 
   async getDepartments(year) {
     try {
-      const data:any = await this.Department.aggregate([
+      const data: any = await this.Department.aggregate([
         {
           $match: { year }, // Filter by the desired batch year (2020 in this case)
         },
         {
-          $unwind: "$branches",
+          $unwind: '$branches',
         },
         {
           $group: {
-            _id: "$year",
+            _id: '$year',
             branches: {
               $push: {
-                name: "$branches.name",
-                totalStudents: "$branches.totalStudents",
-                totalStudentsIntake: "$branches.totalStudentsIntake",
+                name: '$branches.name',
+                totalStudents: '$branches.totalStudents',
+                totalStudentsIntake: '$branches.totalStudentsIntake',
                 availableIntake: {
                   $subtract: [
-                    "$branches.totalStudentsIntake",
-                    "$branches.totalStudents",
+                    '$branches.totalStudentsIntake',
+                    '$branches.totalStudents',
                   ],
                 },
               },
             },
-            totalStudents: { $sum: "$branches.totalStudents" },
-            totalStudentsIntake: { $sum: "$branches.totalStudentsIntake" },
+            totalStudents: { $sum: '$branches.totalStudents' },
+            totalStudentsIntake: { $sum: '$branches.totalStudentsIntake' },
           },
         },
         {
           $project: {
             _id: 0,
-            batch: "$_id",
+            batch: '$_id',
             totalStudents: 1,
             totalStudentsIntake: 1,
             availableIntake: {
-              $subtract: ["$totalStudentsIntake", "$totalStudents"],
+              $subtract: ['$totalStudentsIntake', '$totalStudents'],
             },
             branches: {
               $arrayToObject: {
                 $map: {
-                  input: "$branches",
-                  as: "b",
-                  in: { k: "$$b.name", v: "$$b" },
+                  input: '$branches',
+                  as: 'b',
+                  in: { k: '$$b.name', v: '$$b' },
                 },
               },
             },
@@ -264,8 +268,88 @@ export class AdministrationService {
       }
       return data;
     } catch (error) {
-      throw new InternalServerErrorException('An error occurred while processing the request.');
+      throw new InternalServerErrorException(
+        'An error occurred while processing the request.',
+      );
     }
   }
 
+  async addDepartmentData(year: string, dataToAdd: object) {
+    try {
+      const inputYear = parseInt(year);
+      const department = await this.Department.findOne({ year: inputYear });
+      if (department) {
+        await department.updateOne(dataToAdd, { new: true });
+
+        return 'Department has been updated';
+      }
+
+      const newDepartment = new this.Department({
+        year: inputYear,
+        ...dataToAdd,
+      });
+
+      await newDepartment.save();
+
+      return 'New Department Added successfully';
+    } catch (err) {
+      throw new HttpException(
+        'An error occurred while processing the request',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateStudent(body) {
+    try {
+      const { studentId, ...updateBody } = body;
+
+      if (updateBody.hasOwnProperty('currentSem')) {
+        const student: any = await this.Student.findOne({ studentId });
+
+        if (!student) {
+          return 'Student not found';
+        }
+
+        // Calculate attendance only if 'currentSem' is being updated
+        const { currentSem: newCurrentSem } = updateBody;
+        if (newCurrentSem !== student.currentSem) {
+          const attendance = await this.calculateAttendance(student);
+          const semAttendanceToPush = {
+            sem: newCurrentSem,
+            attendance,
+          };
+
+          student.semAttendance.push(semAttendanceToPush);
+          student.attendance = [];
+          await student.save();
+        }
+
+        // Update the student
+        await student.updateOne(updateBody);
+
+        // Fetch the updated student
+        const updatedStudent = await this.Student.findOne({ studentId });
+
+        return 'student updated successfully';
+      } else {
+        // If 'currentSem' is not being updated, proceed with the regular update
+        const updatedStudent = await this.Student.findOneAndUpdate(
+          { studentId },
+          updateBody,
+          { new: true },
+        );
+        if (!updatedStudent) {
+          return 'Student not found';
+        }
+
+        return 'student updated successfully';
+      }
+    } catch (err) {
+      throw new HttpException(
+        'An error occurred while processing the request',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
