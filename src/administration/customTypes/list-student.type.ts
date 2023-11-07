@@ -1,13 +1,13 @@
 // customTypes.ts
 
 export type Branches = {
-    [key: string]: number;
+  [key: string]: number;
 };
 
 export type StudentData = {
-    totalStudents: number;
-    year: number;
-    branches: Branches;
+  totalStudents: number;
+  year: number;
+  branches: Branches;
 };
 
 export type listStudentType = StudentData[];

@@ -25,7 +25,7 @@ export class StudentController {
       const student = req.user;
       const studentId = student.studentId;
       const token = req.headers.authorization.replace('Bearer ', '') || null;
-      if (!token){
+      if (!token) {
         res.status(401).send('Pls login!!');
       }
       const user = await this.studentService.logout(studentId, token);

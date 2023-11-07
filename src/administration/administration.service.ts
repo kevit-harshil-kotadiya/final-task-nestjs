@@ -81,11 +81,11 @@ export class AdministrationService {
     const match = password === administrator.password;
     if (match) {
       const token = this.jwtService.sign(
-          {
-            _id: administrator._id.toString(),
-            administratorId: administrator.administratorId,
-          },
-          { secret: process.env.KEY },
+        {
+          _id: administrator._id.toString(),
+          administratorId: administrator.administratorId,
+        },
+        { secret: process.env.KEY },
       );
       administrator.tokens.push({ token });
       await administrator.save();
@@ -93,7 +93,6 @@ export class AdministrationService {
       return { administrator, token };
     }
     throw new HttpException('Invalid Credentials', HttpStatus.UNAUTHORIZED);
-
   }
 
   async logout(administratorId: string, token: string) {
@@ -108,7 +107,7 @@ export class AdministrationService {
 
       return user;
     } catch (e) {
-    console.log(e);
+      console.log(e);
       return null;
     }
   }

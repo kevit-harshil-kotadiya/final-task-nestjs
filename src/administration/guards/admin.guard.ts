@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 
-enum UserProfile{
-  ADMIN='admin',
-  STAFF='staff'
+enum UserProfile {
+  ADMIN = 'admin',
+  STAFF = 'staff',
 }
 
 @Injectable()
@@ -34,7 +34,8 @@ export class StaffAuthorizationGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     if (
       request.user &&
-      (request.user.profile === UserProfile.STAFF|| request.user.profile === UserProfile.ADMIN)
+      (request.user.profile === UserProfile.STAFF ||
+        request.user.profile === UserProfile.ADMIN)
     ) {
       return true; // Access granted for admin users
     }

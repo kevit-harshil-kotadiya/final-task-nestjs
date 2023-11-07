@@ -21,7 +21,7 @@ import {
 import { throttle } from 'rxjs';
 import { Aggregate } from 'mongoose';
 import { DepartmentDto } from '../department/dtos/departmentData.dto';
-import {listStudentType} from "./customTypes/list-student.type";
+import { listStudentType } from './customTypes/list-student.type';
 
 @Controller('administration')
 export class AdministrationController {
@@ -44,25 +44,25 @@ export class AdministrationController {
   @Post('/add-admin')
   @UseGuards(AdminAuthorizationGuard)
   async addAdmin(@Body() body: AdministrationDto) {
-    return  this.adminService.createAdmin(body);
+    return this.adminService.createAdmin(body);
   }
 
   @Post('/student')
   @UseGuards(StaffAuthorizationGuard)
   async addStudent(@Body() body: StudentDto) {
-    return  this.adminService.addStudent(body);
+    return this.adminService.addStudent(body);
   }
 
   @Post('/add-staff')
   @UseGuards(AdminAuthorizationGuard)
   async addStaff(@Body() body: AdministrationDto) {
-    return  this.adminService.addStaff(body);
+    return this.adminService.addStaff(body);
   }
 
   @Post('/logout')
   async logout(@Req() req, @Res() res) {
     try {
-      const {administratorId} = req.user;
+      const { administratorId } = req.user;
       const token = req.headers.authorization.replace('Bearer ', '');
 
       const user = await this.adminService.logout(administratorId, token);
@@ -79,7 +79,7 @@ export class AdministrationController {
 
   @Get('/list-students')
   @UseGuards(StaffAuthorizationGuard)
-  async listStudents():Promise<listStudentType> {
+  async listStudents(): Promise<listStudentType> {
     const studentData: any = await this.adminService.getStudentData();
 
     if (!studentData || studentData.length === 0) {
@@ -115,12 +115,12 @@ export class AdministrationController {
   @UseGuards(AdminAuthorizationGuard)
   async addDepartmentData(@Body() body: DepartmentDto) {
     const { year, ...dataToAdd } = body;
-    return  this.adminService.addDepartmentData(year, dataToAdd);
+    return this.adminService.addDepartmentData(year, dataToAdd);
   }
 
   @Put('/student')
   @UseGuards(StaffAuthorizationGuard)
   async updateStudent(@Body() body) {
-    return  this.adminService.updateStudent(body);
+    return this.adminService.updateStudent(body);
   }
 }
