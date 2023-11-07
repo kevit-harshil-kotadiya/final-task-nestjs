@@ -25,14 +25,14 @@ export class StudentController {
       const student = req.user;
       const studentId = student.studentId;
       const token = req.headers.authorization.replace('Bearer ', '');
-
+      if (!token){
+        res.status(401).send('Pls login!!');
+      }
       const user = await this.studentService.logout(studentId, token);
-
-      if (user) {
-        res.send('logout successful');
-      } else {
+      if (!user) {
         res.status(404).send('User not found');
       }
+      res.send('logout successful');
     } catch (e) {
       return res.status(500).send('Server error');
     }

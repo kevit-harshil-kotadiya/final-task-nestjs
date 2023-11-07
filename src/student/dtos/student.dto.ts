@@ -6,13 +6,13 @@ export class StudentDto {
   @IsString()
   studentId: string;
   @IsNumber()
-  phoneNumber: string;
+  phoneNumber: number;
   @IsString()
   password: string;
   @IsNumber()
-  currentSem: string;
+  currentSem: number;
   @IsString()
   department: string;
   @IsNumber()
-  batch: string;
+  batch: number;
 }

@@ -75,27 +75,25 @@ export class AdministrationService {
     const administrator: any = await this.Administration.findOne({
       administratorId,
     });
-    if (administrator) {
-      const match = password === administrator.password;
-
-      if (match) {
-        const token = this.jwtService.sign(
+    if (!administrator) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const match = password === administrator.password;
+    if (match) {
+      const token = this.jwtService.sign(
           {
             _id: administrator._id.toString(),
             administratorId: administrator.administratorId,
           },
           { secret: process.env.KEY },
-        );
+      );
+      administrator.tokens.push({ token });
+      await administrator.save();
 
-        administrator.tokens.push({ token });
-        await administrator.save();
-
-        return { administrator, token };
-      }
-
-      throw new HttpException('Invalid Credentials', HttpStatus.UNAUTHORIZED);
+      return { administrator, token };
     }
-    throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    throw new HttpException('Invalid Credentials', HttpStatus.UNAUTHORIZED);
+
   }
 
   async logout(administratorId: string, token: string) {
@@ -110,7 +108,7 @@ export class AdministrationService {
 
       return user;
     } catch (e) {
-      // Log or handle the error accordingly
+    console.log(e);
       return null;
     }
   }
