@@ -69,12 +69,12 @@ export class StudentService {
 
     const currentDate = dayjs().format('YYYY-MM-DD'); // Format: "YYYY-MM-DD"
 
-      if (student.attendance.includes(currentDate)) {
-          throw new ConflictException('Attendance already recorded!!');
-      } else {
-          student.attendance.push(currentDate);
-          await student.save();
-          return 'Attendance Recorded!';
-      }
+    if (student.attendance.includes(currentDate)) {
+      throw new ConflictException('Attendance already recorded!!');
+    } else {
+      student.attendance.push(currentDate);
+      await student.save();
+      return 'Attendance Recorded!';
+    }
   }
 }

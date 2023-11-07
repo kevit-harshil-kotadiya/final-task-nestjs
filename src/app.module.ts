@@ -17,11 +17,16 @@ import { administrationSchema } from './administration/administration.model';
 import { studentSchema } from './student/student.model';
 import { departmentSchema } from './department/department.model';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 
-dotenv.config();
+// dotenv.config();
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: `.env.${process.env.NODE_ENV}`,
+      isGlobal: true,
+    }),
     AdministrationModule,
     MongooseModule.forRoot(process.env.MONGODB_URI),
     StudentModule,
@@ -29,7 +34,7 @@ dotenv.config();
     MongooseModule.forFeature([
       { name: 'Administration', schema: administrationSchema },
       { name: 'Student', schema: studentSchema },
-      { name: 'Department', schema: departmentSchema },
+      { name: 'Batch', schema: departmentSchema },
     ]),
     JwtModule.register({
       secret: 'yourSecretKey', // Replace with your actual secret key

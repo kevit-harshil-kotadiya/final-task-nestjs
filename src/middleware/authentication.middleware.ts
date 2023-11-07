@@ -34,13 +34,13 @@ export class AuthenticationMiddleware implements NestMiddleware {
         _id: decoded._id,
         'tokens.token': token,
       });
-      // console.log(student);
+      console.log(student);
 
       const administrator = await this.Administration.findOne({
         _id: decoded._id,
         'tokens.token': token,
       });
-      // console.log(administrator);
+      console.log(administrator);
       if (!student && !administrator) {
         throw new UnauthorizedException('Please login');
       }
