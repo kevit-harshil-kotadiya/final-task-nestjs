@@ -68,7 +68,7 @@ export class AdministrationController {
       const user = await this.adminService.logout(administratorId, token);
 
       if (user) {
-        res.send('logout successful');
+        return res.send('logout successful');
       } else {
         res.status(404).send('User not found');
       }
@@ -81,7 +81,6 @@ export class AdministrationController {
   @UseGuards(StaffAuthorizationGuard)
   async listStudents(): Promise<listStudentType> {
     const studentData: any = await this.adminService.getStudentData();
-
     if (!studentData || studentData.length === 0) {
       throw new HttpException('No Data Found!!', HttpStatus.NO_CONTENT);
     }

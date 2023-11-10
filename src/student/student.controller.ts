@@ -6,17 +6,10 @@ import { StudentloginDto } from './dtos/studentlogin.dto';
 export class StudentController {
   constructor(private studentService: StudentService) {}
   @Post('/login')
-  async login(@Body() body: StudentloginDto, @Res() res) {
-    try {
-      const { studentId, password } = body;
-      const loginResponse = await this.studentService.login(
-        studentId,
-        password,
-      );
-      return res.status(HttpStatus.OK).send(loginResponse);
-    } catch (error) {
-      return res.status(HttpStatus.UNAUTHORIZED).send(error.message);
-    }
+  async login(@Body() body: StudentloginDto) {
+    const { studentId, password } = body;
+    const loginResponse = await this.studentService.login(studentId, password);
+    return loginResponse;
   }
 
   @Post('/logout')
@@ -32,7 +25,7 @@ export class StudentController {
       if (!user) {
         res.status(404).send('User not found');
       }
-      res.send('logout successful');
+      return res.send('logout successful');
     } catch (e) {
       return res.status(500).send('Server error');
     }
@@ -41,6 +34,6 @@ export class StudentController {
   @Post('/attendence')
   async recordAttendance(@Req() req) {
     const { studentId } = req.user;
-    return await this.studentService.takeAttendence(studentId);
+    return this.studentService.takeAttendence(studentId);
   }
 }

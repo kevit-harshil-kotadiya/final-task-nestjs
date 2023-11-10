@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Body, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -293,7 +293,7 @@ describe('AppController (e2e)', () => {
           studentId: '69',
           password: 'student@log01',
         })
-        .expect(200)
+        .expect(201)
         .then((res) => {
           studentToken = res.body.token;
         });

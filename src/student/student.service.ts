@@ -57,6 +57,7 @@ export class StudentService {
       return user;
     } catch (e) {
       // Log or handle the error accordingly
+      console.log(e);
       return null;
     }
   }
