@@ -25,6 +25,7 @@ import { listStudentType } from './customTypes/list-student.type';
 import {AbsentStudentDto} from "./dtos/absentStudent.dto";
 import {LessAttendanceDto} from "./dtos/lessAttendance.dto";
 import {UpdateStudentDto} from "./dtos/updateStudent.dto";
+import {GetDepartmentDto} from "./dtos/getdepartment.dto";
 
 @Controller('administration')
 export class AdministrationController {
@@ -108,7 +109,7 @@ export class AdministrationController {
 
   @Get('/departments')
   @UseGuards(AdminAuthorizationGuard)
-  departments(@Body() body) {
+  departments(@Body() body:GetDepartmentDto) {
     const { year } = body;
     return this.adminService.getDepartments(year);
   }
