@@ -79,20 +79,20 @@ export class AdministrationService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     const match = password === administrator.password;
-    if (match) {
-      const token = this.jwtService.sign(
+    if (!match) {
+      throw new HttpException('Invalid Credentials', HttpStatus.UNAUTHORIZED);
+    }
+    const token = this.jwtService.sign(
         {
           _id: administrator._id.toString(),
           administratorId: administrator.administratorId,
         },
         { secret: process.env.KEY },
-      );
-      administrator.tokens.push({ token });
-      await administrator.save();
+    );
+    administrator.tokens.push({ token });
+    await administrator.save();
 
-      return { administrator, token };
-    }
-    throw new HttpException('Invalid Credentials', HttpStatus.UNAUTHORIZED);
+    return { administrator, token };
   }
 
   async logout(administratorId: string, token: string) {

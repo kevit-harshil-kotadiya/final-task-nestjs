@@ -22,6 +22,9 @@ import { throttle } from 'rxjs';
 import { Aggregate } from 'mongoose';
 import { DepartmentDto } from '../department/dtos/departmentData.dto';
 import { listStudentType } from './customTypes/list-student.type';
+import {AbsentStudentDto} from "./dtos/absentStudent.dto";
+import {LessAttendanceDto} from "./dtos/lessAttendance.dto";
+import {UpdateStudentDto} from "./dtos/updateStudent.dto";
 
 @Controller('administration')
 export class AdministrationController {
@@ -89,17 +92,17 @@ export class AdministrationController {
 
   @Get('/absent-students')
   @UseGuards(StaffAuthorizationGuard)
-  absentStudents(@Body() body) {
+  absentStudents(@Body() body:AbsentStudentDto) {
     const { date } = body;
-    if (!date) return 'Please enter a date';
+    // if (!date) return 'Please enter a date';
     return this.adminService.absentStudents(date);
   }
 
   @Get('/less-attendance')
   @UseGuards(StaffAuthorizationGuard)
-  lessAttendance(@Body() body) {
-    const sem = parseInt(body.sem);
-    if (!sem) return 'Please enter a sem';
+  lessAttendance(@Body() body:LessAttendanceDto) {
+    const sem = body.sem;
+    // if (!sem) return 'Please enter a sem';
     return this.adminService.lessAttendance(sem);
   }
 
@@ -119,7 +122,7 @@ export class AdministrationController {
 
   @Put('/student')
   @UseGuards(StaffAuthorizationGuard)
-  async updateStudent(@Body() body) {
+  async updateStudent(@Body() body:UpdateStudentDto) {
     return this.adminService.updateStudent(body);
   }
 }
